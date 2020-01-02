@@ -143,7 +143,8 @@ entropy dataSet@(h, rs) att@(_, vals)
   = sum (map (negate . xlogx) (map (px dataSet att) vals))
 
 px :: DataSet -> Attribute -> AttValue -> Double
-px dataSet@(_, rs) att x = (fromIntegral (lookUp x (buildFrequencyTable att dataSet))) / (fromIntegral (length rs))
+px dataSet@(_, rs) att x 
+  = (fromIntegral (lookUp x (buildFrequencyTable att dataSet))) / (fromIntegral (length rs))
 
 gain :: DataSet -> Attribute -> Attribute -> Double
 gain dataSet@(h, rs) att@(_, vals) classifierAtt
