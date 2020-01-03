@@ -82,43 +82,16 @@ toCNF f
 
 -- 4 marks
 flatten :: CNF -> CNFRep
-flatten f
-  -- | And (And f1 f1') (And f2 f2') <- f = flatten (And f1 f1') ++ flatten (And f2 f2')
-  | And f1           (And f2 f2') <- f = flatten' f1 : flatten (And f2 f2')
-  -- | And (And f1 f1') f2           <- f = flatten' f2 : flatten (And f1 f1')
-  | And f1           f2           <- f = flatten' f1 : flatten' f2 : []
-  | otherwise                          = flatten' f : []
-
+flatten formula
+  = flatten' formula
   where 
-    ids = idMap f 
-
-    flatten' :: CNF -> [Int]
-    -- No And structures can exist at this level, since formula is in CNF
-    flatten' f 
-      -- | Or (Or f1 f1') (Or f2 f2') <- f = flatten' (Or f1 f1') ++ flatten' (Or f2 f2')
-      | Or f1          (Or f2 f2') <- f = (flatten'' f1) : (flatten' (Or f2 f2'))
-      -- | Or (Or f1 f1') f2          <- f = (flatten'' f2) : (flatten' (Or f1 f1'))
-      | Or f1          f2          <- f = (flatten'' f1) : (flatten'' f2) : []
-      | otherwise                       = flatten'' f : []
-
-    flatten'' :: CNF -> Int 
-    flatten'' f 
-      | Not (Var id) <- f = - (lookUp id ids)
-      | Var id       <- f = lookUp id ids
-
--- And (Or (Var "a") (Not (Var "d"))) (And (Or (Not (Var "b")) (Not (Var "d"))) (Or (Not (Var "c")) (Not (Var "d"))))
-
--- And (Or (Not (Var "c")) (Not (Var "g"))) (And (Or (Var "b") (Or (Var "c") (Var "e"))) 
--- (And (Or (Var "a") (Not (Var "b"))) (And (Or (Var "a") (Not (Var "e"))) (And (Or (Not (Var "a"))
---  (Not (Var "d"))) (And (Or (Var "c") (Or (Var "d") (Var "f"))) (And (Or (Not (Var "a"))
---   (Not (Var "f"))) (Var "g")))))))
-
-
--- Var Id
---              | Not Formula
---              | And Formula Formula
---              | Or  Formula Formula
-
+    ids = idMap formula
+    flatten' :: CNF -> CNFRep
+    flatten' f
+      | Var x <- f       = [[lookUp x ids]] 
+      | Not (Var x) <- f = [[-1 * (lookUp x ids)]] 
+      | And f1 f2   <- f = flatten' f1 ++ flatten' f2
+      | Or f1 f2    <- f = [concat (flatten' f1 ++ flatten' f2)] 
 
 --------------------------------------------------------------------------
 -- Part III
