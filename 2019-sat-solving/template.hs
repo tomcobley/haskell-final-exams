@@ -128,26 +128,24 @@ propUnits :: CNFRep -> (CNFRep, [Int])
 propUnits f
   | [] <- units = (f, [])
   | otherwise   = (f', units ++ units')
-  -- = undefined --(deleteLiterals (f \\ (units)), concat units)
   where 
     units        = findUnits f
     (f', units') = propUnits (foldl deleteLiterals (foldl deleteClauses f units) units)
-    -- f''          = f' \\ [[]]
 
-deleteClauses :: CNFRep -> Int -> CNFRep
-deleteClauses f n 
-  = filter (not . elem n) f
+    deleteClauses :: CNFRep -> Int -> CNFRep
+    deleteClauses f n 
+      = filter (not . elem n) f
 
-findUnits :: CNFRep -> [Int]
-findUnits f
-  | [n] : clauses <- f = n : (findUnits clauses)
-  | _ : clauses   <- f = findUnits clauses
-  | otherwise          = []
+    findUnits :: CNFRep -> [Int]
+    findUnits f
+      | [n] : clauses <- f = n : (findUnits clauses)
+      | _ : clauses   <- f = findUnits clauses
+      | otherwise          = []
 
-deleteLiterals :: CNFRep -> Int -> CNFRep
-deleteLiterals f n 
-  | (clause : clauses) <- f = (clause \\ [-n]) : (deleteLiterals clauses n)
-  | otherwise               = []
+    deleteLiterals :: CNFRep -> Int -> CNFRep
+    deleteLiterals f n 
+      | (clause : clauses) <- f = (clause \\ [-n]) : (deleteLiterals clauses n)
+      | otherwise               = []
 
 
 -- 4 marks
