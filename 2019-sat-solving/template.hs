@@ -127,10 +127,11 @@ flatten f
 propUnits :: CNFRep -> (CNFRep, [Int])
 propUnits f
   | [] <- units = (f, [])
-  | otherwise   = (f', units ++ units')
+  | otherwise   = (f', unit : units')
   where 
     units        = findUnits f
-    (f', units') = propUnits (foldl deleteLiterals (foldl deleteClauses f units) units)
+    (unit:_)     = units
+    (f', units') = propUnits (deleteLiterals (deleteClauses f unit) unit)
 
     deleteClauses :: CNFRep -> Int -> CNFRep
     deleteClauses f n 
@@ -147,46 +148,19 @@ propUnits f
       | (clause : clauses) <- f = (clause \\ [-n]) : (deleteLiterals clauses n)
       | otherwise               = []
 
-
--- 4 marks
--- dp :: CNFRep -> [[Int]]
--- dp f
---   | [] <- cnf1, [] <- cnf2 = [propagatedUnits ++ units1] ++ [propagatedUnits ++ units2]
---   | [] <- cnf1 = [propagatedUnits ++ units1] 
---   | [] <- cnf2 = [propagatedUnits ++ units2]
---   | otherwise  = []
---   -- = undefined --propUnits ([firstLiteral] : propagatedCNF)
---   where
---     ( propagatedCNF@((firstLiteral:_):_), propagatedUnits) = propUnits f
---     (cnf1, units1) = propUnits ([firstLiteral] : propagatedCNF)
---     (cnf2, units2) = propUnits ([-firstLiteral] : propagatedCNF)
-
-
 dp :: CNFRep -> [[Int]]
 dp f
   = dp' f []
-  -- | [] <- propagatedCNF = [propagatedUnits]
-  -- | otherwise           = ( propagatedUnits : (dp ([firstLiteral] : propagatedCNF)) ) ++ (propagatedUnits : (dp ([-firstLiteral] : propagatedCNF)))
-  -- = undefined --propUnits ([firstLiteral] : propagatedCNF)
   where
-    -- (propagatedCNF, propagatedUnits) = propUnits f
-    -- ((firstLiteral:_):_) = propagatedCNF 
-    -- (cnf1, units1) = propUnits ([firstLiteral] : propagatedCNF)
-    -- (cnf2, units2) = propUnits ([-firstLiteral] : propagatedCNF)
-
     dp' :: CNFRep -> [Int] -> [[Int]]
     dp' f assignments
       | [] <- propagatedCNF   = [assignments ++ propagatedUnits]
       | elem [] propagatedCNF = [] -- failure
       | otherwise             = dp' ([firstLiteral] : propagatedCNF) (propagatedUnits ++ assignments)
-                                  ++ dp' ([-firstLiteral] : propagatedCNF) (propagatedUnits ++ assignments)
-
+                                ++ dp' ([-firstLiteral] : propagatedCNF) (propagatedUnits ++ assignments)
       where 
         (propagatedCNF, propagatedUnits)  = propUnits f
         ((firstLiteral:_):_)              = propagatedCNF 
-
-
-    -- acc param w solutions
 
 
 --------------------------------------------------------------------------
