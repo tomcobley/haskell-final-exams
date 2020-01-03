@@ -151,6 +151,7 @@ type MetaTransition = (MetaState, MetaState, Label)
 getFrontier :: State -> Automaton -> [Transition]
 getFrontier s a
   = undefined
+  
   -- = filter ((/=) Eps . thr3) (allTransitionsFrom s)
   -- where
   --   allTransitionsFrom :: State -> [Transition]
