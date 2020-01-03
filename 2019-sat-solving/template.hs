@@ -127,23 +127,27 @@ flatten f
 propUnits :: CNFRep -> (CNFRep, [Int])
 propUnits f
   | [] <- units = (f, [])
-  | otherwise   = (f'', concat units ++ units')
+  | otherwise   = (f', units ++ units')
   -- = undefined --(deleteLiterals (f \\ (units)), concat units)
   where 
     units        = findUnits f
-    (f', units') = propUnits (foldl deleteLiterals (f \\ units) (concat units))
-    f''          = f' \\ [[]]
+    (f', units') = propUnits (foldl deleteLiterals (foldl deleteClauses f units) units)
+    -- f''          = f' \\ [[]]
 
-    findUnits :: CNFRep -> [[Int]]
-    findUnits f
-      | [n] : clauses <- f = [n] : (findUnits clauses)
-      | _ : clauses   <- f = findUnits clauses
-      | otherwise          = []
+deleteClauses :: CNFRep -> Int -> CNFRep
+deleteClauses f n 
+  = filter (not . elem n) f
 
-    deleteLiterals :: CNFRep -> Int -> CNFRep
-    deleteLiterals f n 
-      | (clause : clauses) <- f = ((clause \\ [n]) \\ [-n]) : (deleteLiterals clauses n)
-      | otherwise               = []
+findUnits :: CNFRep -> [Int]
+findUnits f
+  | [n] : clauses <- f = n : (findUnits clauses)
+  | _ : clauses   <- f = findUnits clauses
+  | otherwise          = []
+
+deleteLiterals :: CNFRep -> Int -> CNFRep
+deleteLiterals f n 
+  | (clause : clauses) <- f = (clause \\ [-n]) : (deleteLiterals clauses n)
+  | otherwise               = []
 
 
 -- 4 marks
@@ -161,17 +165,27 @@ propUnits f
 
 
 dp :: CNFRep -> [[Int]]
-dp []
-  = []
 dp f
-  | [] <- propagatedCNF = [propagatedUnits]
-  | otherwise           = ( propagatedUnits : (dp ([firstLiteral] : propagatedCNF)) ) ++ (propagatedUnits : (dp ([-firstLiteral] : propagatedCNF)))
+  = dp' f []
+  -- | [] <- propagatedCNF = [propagatedUnits]
+  -- | otherwise           = ( propagatedUnits : (dp ([firstLiteral] : propagatedCNF)) ) ++ (propagatedUnits : (dp ([-firstLiteral] : propagatedCNF)))
   -- = undefined --propUnits ([firstLiteral] : propagatedCNF)
   where
-    (propagatedCNF, propagatedUnits) = propUnits f
-    ((firstLiteral:_):_) = propagatedCNF 
+    -- (propagatedCNF, propagatedUnits) = propUnits f
+    -- ((firstLiteral:_):_) = propagatedCNF 
     -- (cnf1, units1) = propUnits ([firstLiteral] : propagatedCNF)
     -- (cnf2, units2) = propUnits ([-firstLiteral] : propagatedCNF)
+
+    dp' :: CNFRep -> [Int] -> [[Int]]
+    dp' f assignments
+      | [] <- propagatedCNF   = [assignments ++ propagatedUnits]
+      | elem [] propagatedCNF = [] -- failure
+      | otherwise             = dp' ([firstLiteral] : propagatedCNF) (propagatedUnits ++ assignments)
+                                  ++ dp' ([-firstLiteral] : propagatedCNF) (propagatedUnits ++ assignments)
+
+      where 
+        (propagatedCNF, propagatedUnits)  = propUnits f
+        ((firstLiteral:_):_)              = propagatedCNF 
 
 
     -- acc param w solutions
