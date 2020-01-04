@@ -121,6 +121,7 @@ propUnits f
       | (clause : clauses) <- f = (clause \\ [-n]) : (deleteLiterals clauses n)
       | otherwise               = []
 
+
 dp :: CNFRep -> [[Int]]
 dp f
   = dp' f []
@@ -141,7 +142,38 @@ dp f
 
 -- Bonus 2 marks
 allSat :: Formula -> [[(Id, Bool)]]
-allSat
-  = undefined
+allSat f
+  = map toVerbose (allAssignments sols)
+  where 
+    idsFlipped = flipTable (idMap f)
+    sols = dp (flatten (toCNF f))
+    varsNumerical = map (flip lookUp (idMap f)) (vars f) 
 
+    toVerbose :: [Int] -> [(Id, Bool)]
+    toVerbose sols 
+      = sort (map g sols)
+      where 
+        g :: Int -> (Id, Bool)
+        g n = (lookUp (abs n) idsFlipped, n > 0) 
 
+    allAssignments :: [[Int]] -> [[Int]]
+    allAssignments []
+      = [] 
+    allAssignments (a:as)
+      = (map ((++) a) (combinations (findMissing varsNumerical a))) ++ (allAssignments as)
+
+    combinations :: [Int] -> [[Int]]
+    combinations vs
+      | [] <- vs = [[]] 
+      | (var:vars) <- vs = (map ((:) var) (combinations vars)) ++ (map ((:) (-var)) (combinations vars))
+
+    findMissing :: [Int] -> [Int] -> [Int]
+    findMissing allVars assignments
+      = filter (not . flip elem (map abs assignments) ) allVars
+
+    flipTable :: [(a,b)] -> [(b,a)]
+    flipTable t
+      | []            <- t = [] 
+      | ((a, b) : ps) <- t = (b, a) : (flipTable ps)
+
+ 
