@@ -109,7 +109,7 @@ buildIG
 -- Part V
 --
 liveVars :: CFG -> [[Id]]
-liveVars cfg = converge (==) $ iterate (flip go [0..(length cfg - 1)]) (take (length cfg) (repeat []))
+liveVars cfg = converge (==) $ iterate (flip go [0..(length cfg - 1)]) (replicate (length cfg) [])
   where
     def  = map (fst . fst) cfg
     use  = map (snd . fst) cfg
@@ -119,7 +119,7 @@ liveVars cfg = converge (==) $ iterate (flip go [0..(length cfg - 1)]) (take (le
     go _ []       
       = []
     go l (n : ns) 
-      = (union (use !! n) ((foldl union [] [l !! s | s <- (succ !! n)]) \\ [def !! n])) : go l ns
+      = (union (use !! n) ((foldl union [] (map ((!!) l) (succ !! n))) \\ [def !! n])) : go l ns
 
     converge :: Eq a => (a -> a -> Bool) -> [a] -> a
     converge f (x : xs : xss)
