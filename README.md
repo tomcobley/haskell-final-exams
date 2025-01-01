@@ -14,7 +14,5 @@ Original solutions by [@tomcobley](https://github.com/tomcobley).
 #### 2021-2023
 Thanks to [@cybercoder-naj](https://github.com/cybercoder-naj) for adding these and providing solutions to the 2021 & 2023 papers!
 
-> Note: 
-
 #### 2024-
 Contributions welcome, [open a pull request](https://github.com/tomcobley/haskell-final-exams/pulls)!
