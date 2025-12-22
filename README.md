@@ -2,9 +2,9 @@
 
 Solutions to the Imperial College London final Haskell exam [past papers](https://www.doc.ic.ac.uk/~ajf/haskelltests/).
 
-Includes my [solution](2020-hash-array-mapped-tries/Tries.hs) for the exam I sat in January 2020, for which I recieved full marks.
+Includes my [solution](2020-hash-array-mapped-tries/Tries.hs) for the exam I sat in January 2020, for which I received full marks.
 
-> Note: solutions after 2020 have not been tested/verified by the original author.
+> **Note: solutions after 2020 have not been reviewed/tested/verified by the original author (@tomcobley).**
 
 ## Authors
 
@@ -19,3 +19,6 @@ Contributions welcome, [open a pull request](https://github.com/tomcobley/haskel
 
 #### 2025
 Thanks to [@cybercoder-naj](https://github.com/cybercoder-naj) for adding these and providing solutions to the 2025 paper!
+
+#### 2026-
+Contributions welcome, [open a pull request](https://github.com/tomcobley/haskell-final-exams/pulls)!
